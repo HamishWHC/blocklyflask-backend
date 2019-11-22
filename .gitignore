@@ -27,3 +27,6 @@ speed-measure-plugin*.json
 # System Files
 .DS_Store
 Thumbs.db
+
+# Key and DB configuration file.
+/private.ini
