@@ -22,6 +22,10 @@ def create_app(config: Type[BaseConfig] = BaseConfig) -> Flask:
     migrate.init_app(app, db)
     jwt_manager.init_app(app)
     marshmallow.init_app(app)
+
+    import app.models as MODELS
+    import app.utils as UTILS
+    import app.schemas as SCHEMAS
     
     from .blueprints import BLUEPRINTS
     
