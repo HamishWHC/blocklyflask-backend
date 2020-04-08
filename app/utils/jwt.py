@@ -12,6 +12,7 @@ def user_loader_callback(identity):
     else:
         return None
 
+
 @jwt_manager.user_identity_loader
 def user_identity_loader(identity: User):
     return identity.id

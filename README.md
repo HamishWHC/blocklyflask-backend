@@ -14,4 +14,5 @@ features, and you could probably get away with a SQLite 3 file or another DB by 
 private.ini, but no guarantees on Flask-Migrate and Alembic working) and then all the Python packages in
 requirements.txt (in venv directory: `python -m pip install -f requirements.txt`).
 
-Set-up the DB using `flask db upgrade` and then run the dev server using `flask run`.
+Configure private.ini (copy and change the values in example-private.ini) and set-up the DB using `flask db upgrade`
+and then run the dev server using `flask run`.
