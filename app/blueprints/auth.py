@@ -7,12 +7,12 @@ from webargs.flaskparser import use_args
 from app.models import User
 from app.schemas import UserSchema
 
-auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+auth_bp = Blueprint("auth", __name__)
 
 user_schema = UserSchema(exclude=("projects",))
 
 
-@auth_bp.route("/login", methods=["POST"], endpoint="login")
+@auth_bp.route("/auth/", methods=["POST"])
 @use_args({"username": String(required=True), "password": String(required=True)}, locations=("json",))
 def login(args):
     if get_current_user():

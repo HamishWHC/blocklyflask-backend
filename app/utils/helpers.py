@@ -3,7 +3,7 @@ from app.models import User
 from flask_jwt_extended import get_current_user
 
 
-def get_user(identifier: Union[int, str, None]) -> Union[User, None]:
+def get_user(identifier: Union[int, str, None] = None) -> Union[User, None]:
     if isinstance(identifier, int):
         return User.query.get(identifier)
     elif isinstance(identifier, str):

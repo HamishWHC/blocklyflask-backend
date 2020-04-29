@@ -10,7 +10,7 @@ class ProjectSchema(marshmallow.ModelSchema):
         fields = ("id", "user", "name", "last_modified", "files")
 
     id = fields.Integer(dump_only=True)
-    name = fields.String(required=True, validate=validate.Length(60))
+    name = fields.String(required=True, validate=validate.Length(min=6, max=60))
     last_modified = fields.DateTime(dump_only=True)
     user = fields.Nested("UserSchema", exclude=("projects",), dump_only=True)
     files = fields.Nested("BlockFileSchema", excludes=("project",), dump_only=True)

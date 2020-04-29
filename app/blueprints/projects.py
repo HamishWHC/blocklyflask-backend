@@ -1,41 +1,71 @@
+import datetime
 from typing import Tuple, Any
 
 from flask import jsonify, request, Blueprint
+from flask_jwt_extended import jwt_optional
+from marshmallow import ValidationError
 
-from flask_jwt_extended import jwt_required, get_current_user
+from app import db
 from app.models import Project
 from app.schemas import ProjectSchema
-from app.utils import responses, get_user
+from app.utils import get_user
+from app.utils.responses import make_resp, NOT_IMPLEMENTED, NOT_FOUND, NO_JSON, FORBIDDEN, UNAUTHORIZED
 
-projects_bp = Blueprint("users", __name__)
+projects_bp = Blueprint("projects", __name__)
 
 project_schema = ProjectSchema()
 
 
-@projects_bp.route('/projects', methods=["GET", "POST"])
-@projects_bp.route('/user/<int:user_id>/projects', methods=["GET", "POST"])
-@projects_bp.route('/user/<str:username>/projects', methods=["GET", "POST"])
-@jwt_required
-def block_files(user_id: int, username: str) -> Tuple[Any, int]:
+@projects_bp.route('/projects/', methods=["GET", "POST"])
+@projects_bp.route('/user/<int:user_id>/projects/', methods=["GET"])
+@projects_bp.route('/user/<string:username>/projects/', methods=["GET"])
+@jwt_optional
+def projects(user_id: int = None, username: str = None) -> Tuple[Any, int]:
     user = get_user(user_id if user_id else username if username else None)
     if not user:
-        return responses.NOT_FOUND
+        return make_resp(NOT_FOUND)
     if request.method == "GET":
         return jsonify(data=project_schema.dump(Project.query.filter(Project.user_id == user.id).all(),
-                                                   many=True)), 200
+                                                many=True)), 200
     elif request.method == "POST":
-        return responses.NOT_IMPLEMENTED
+        if get_user() is None:
+            return make_resp(UNAUTHORIZED)
+        if not request.is_json:
+            return make_resp(NO_JSON)
+        try:
+            project = project_schema.load(request.get_json())
+            project.user = get_user()
+            project.last_modified = datetime.datetime.now()
+        except ValidationError as errors:
+            return errors.messages, 422
+        db.session.add(project)
+        db.session.commit()
+        return jsonify(data=project_schema.dump(project)), 200
 
 
-@projects_bp.route("/project/<int:id>", methods=["GET", "PUT", "DELETE"])
-@jwt_required
+@projects_bp.route("/project/<int:id>/", methods=["GET", "PUT", "DELETE"])
+@jwt_optional
 def project(id: int):
     project = Project.query.get(id)
     if not project:
-        return responses.NOT_FOUND
+        return make_resp(NOT_FOUND)
     if request.method == "GET":
         return jsonify(data=project_schema.dump(project)), 200
     elif request.method == "PUT":
-        return responses.NOT_IMPLEMENTED
+        if project.user != get_user():
+            return make_resp(FORBIDDEN)
+        if not request.is_json:
+            return make_resp(NO_JSON)
+        try:
+            project = project_schema.load(request.get_json(), instance=project)
+            project.last_modified = datetime.datetime.now()
+        except ValidationError as errors:
+            return errors.messages, 422
+        db.session.commit()
+        return jsonify(data=project_schema.dump(project)), 200
     elif request.method == "DELETE":
-        return responses.NOT_IMPLEMENTED
+        if project.user != get_user():
+            return make_resp(FORBIDDEN)
+        db.session.delete(project)
+        db.session.commit()
+        return make_resp(({"msg": "success"}, 200))

@@ -2,6 +2,7 @@ from flask import jsonify
 
 from app import jwt_manager
 from app.models import User
+from app.utils.responses import make_resp, UNAUTHORIZED
 
 
 @jwt_manager.user_loader_callback_loader
@@ -23,7 +24,7 @@ def custom_user_loader_error(identity):
     ret = {
         "msg": "User {} not found".format(identity)
     }
-    return jsonify(ret), 401
+    return make_resp(UNAUTHORIZED)
 
 
 @jwt_manager.user_claims_loader
