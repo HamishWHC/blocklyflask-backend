@@ -9,4 +9,4 @@ class BlockFile(db.Model):
     block_xml = db.Column(db.Text())
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
     
-    projects = db.relationship("Project", backref=db.backref("block_files"))
+    project = db.relationship("Project", backref=db.backref("block_files", cascade="all, delete-orphan"))

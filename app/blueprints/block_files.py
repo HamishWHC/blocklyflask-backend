@@ -17,9 +17,10 @@ block_file_schema = BlockFileSchema()
 
 
 @block_files_bp.route('/project/<int:project_id>/block-files/', methods=["GET", "POST"])
+@block_files_bp.route('/project/<int:project_name>/block-files/', methods=["GET", "POST"])
 @jwt_optional
-def block_files(project_id: int) -> Tuple[Any, int]:
-    project = Project.query.get(id)
+def block_files(project_id: int = None, project_name: str = None) -> Tuple[Any, int]:
+    project = Project.query.get(id) if id else Project.query.filter(Project.name == project_name).first()
     if not project:
         return make_resp(NOT_FOUND)
     if request.method == "GET":
