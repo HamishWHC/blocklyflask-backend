@@ -1,7 +1,7 @@
 from marshmallow import fields
 from marshmallow.validate import Length
 from app import marshmallow
-from app.models import BlockFile
+from app.models import Directory
 from app.utils import exists
 
 
@@ -14,6 +14,6 @@ class BlockFileSchema(marshmallow.ModelSchema):
     name = fields.String(required=True, validate=Length(min=1, max=255))
     block_xml = fields.String(required=False)
     directory = fields.Nested("DirectorySchema", exclude=("",), dump_only=True)
-    directory_id = fields.Integer(validate=exists(BlockFile, "block file"), load_only=True)
+    directory_id = fields.Integer(validate=[exists(Directory, "directory")], load_only=True)
     project = fields.Nested("ProjectSchema", exclude=("root_directory",), dump_only=True)
     full_path = fields.String(dump_only=True)

@@ -16,22 +16,21 @@ block_files_bp = Blueprint("block_files", __name__)
 block_file_schema = BlockFileSchema()
 
 
-@block_files_bp.route('/project/<int:project_id>/block-files/', methods=["GET", "POST"])
-@block_files_bp.route('/project/<string:project_name>/block-files/', methods=["GET", "POST"])
+@block_files_bp.route('/project/<int:project_id>/block-files/', methods=["GET"])
+@block_files_bp.route('/project/<string:project_name>/block-files/', methods=["GET"])
 @jwt_optional
-def block_files(project_id: int = None, project_name: str = None) -> Tuple[Any, int]:
-    project = Project.query.get(id) if id else Project.query.filter(Project.name == project_name).first()
+def block_files(project_id: int = None, project_name: str = None, path: str = None) -> Tuple[Any, int]:
+    project = Project.query.get(project_id) if project_id else Project.query.filter(Project.name == project_name).first()
     if not project:
         return make_resp(NOT_FOUND)
     if request.method == "GET":
-        return jsonify(data=block_file_schema.dump(BlockFile.query.filter(BlockFile.project_id == project_id).all(),
-                                                   many=True)), 200
+        return jsonify(data=block_file_schema.dump(project.block_files, many=True)), 200
     elif request.method == "POST":
         if project.user != get_user():
             return make_resp(FORBIDDEN if get_user() else UNAUTHORIZED)
+        path = path.split("/") if path else None
         try:
             block_file = block_file_schema.load(request.get_json())
-            block_file.project = project
             project.last_modified = datetime.datetime.now()
         except ValidationError as errors:
             return errors.messages, 422
