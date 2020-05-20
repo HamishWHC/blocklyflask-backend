@@ -13,22 +13,42 @@ from app.utils.responses import make_resp, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, N
 
 block_files_bp = Blueprint("block_files", __name__)
 
-block_file_schema = BlockFileSchema(exclude=("directory_id",))
+block_file_schema = BlockFileSchema()
+in_block_file_schema = BlockFileSchema(exclude=("directory_id",))
 
 
-@block_files_bp.route('/project/<int:project_id>/block-files/', methods=["GET"])
-@block_files_bp.route('/project/<string:project_name>/block-files/', methods=["GET"])
-@jwt_optional
-def get_project_block_files(project_id: int = None, project_name: str = None) -> Tuple[Any, int]:
-    project = Project.query.get(project_id) if project_id else Project.query.filter(Project.name == project_name).first()
-    if not project:
-        return make_resp(NOT_FOUND)
-    return jsonify(data=block_file_schema.dump(project.block_files, many=True)), 200
+# @block_files_bp.route('/project/<int:project_id>/block-files/', methods=["GET", "POST"])
+# @block_files_bp.route('/project/<string:project_name>/block-files/', methods=["GET", "POST"])
+# @jwt_optional
+# def get_project_block_files(project_id: int = None, project_name: str = None) -> Tuple[Any, int]:
+#     project = Project.query.get(project_id) if project_id else Project.query.filter(Project.name == project_name).first()
+#     if not project:
+#         return make_resp(NOT_FOUND)
+#     if request.method == "GET":
+#         return jsonify(data=block_file_schema.dump(project.block_files, many=True)), 200
+#     elif request.method == "POST":
+#         if not get_user():
+#             return make_resp(UNAUTHORIZED)
+#         if project.user != get_user():
+#             return make_resp(FORBIDDEN)
+#         if not request.is_json:
+#             return make_resp(NO_JSON)
+#         try:
+#             block_file = block_file_schema.load(request.get_json())
+#             block_file.project.last_modified = datetime.datetime.now()
+#         except ValidationError as errors:
+#             return errors.messages, 422
+#         db.session.add(block_file)
+#         db.session.commit()
+#         return jsonify(data=block_file_schema.dump(block_file)), 200
 
+
+@block_files_bp.route("/project/<int:project_id>/create-file-in/", methods=["POST"])
+@block_files_bp.route("/project/<string:project_name>/create-file-in/", methods=["POST"])
 @block_files_bp.route("/project/<int:project_id>/create-file-in/<path:file_path>/", methods=["POST"])
 @block_files_bp.route("/project/<string:project_name>/create-file-in/<path:file_path>/", methods=["POST"])
 @jwt_optional
-def create_block_file(project_id: int = None, project_name: str = None, file_path: str = None) -> Tuple[Any, int]:
+def create_block_file(project_id: int = None, project_name: str = None, file_path: str = "") -> Tuple[Any, int]:
     project = Project.query.get(project_id) if project_id else Project.query.filter(
         Project.name == project_name).first()
     if not get_user():
@@ -40,8 +60,10 @@ def create_block_file(project_id: int = None, project_name: str = None, file_pat
     if not request.is_json:
         return make_resp(NO_JSON)
     dir = get_sub_directory_from_path(project.root_directory, file_path)
+    if not dir:
+        return make_resp(NOT_FOUND)
     try:
-        block_file = block_file_schema.load(request.get_json())
+        block_file = in_block_file_schema.load(request.get_json())
         block_file.directory = dir
         project.last_modified = datetime.datetime.now()
     except ValidationError as errors:

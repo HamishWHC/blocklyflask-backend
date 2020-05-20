@@ -19,7 +19,7 @@ def exists(table, name: str) -> Callable:
     def _exists(value: int) -> None:
         if not table.query.get(value):
             raise ValidationError("There is no " + name + " with ID " + str(value) + ".")
-
+    
     return _exists
 
 

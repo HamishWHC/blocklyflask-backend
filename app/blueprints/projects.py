@@ -6,10 +6,10 @@ from flask_jwt_extended import jwt_optional
 from marshmallow import ValidationError
 
 from app import db
-from app.models import Project
+from app.models import Project, Directory
 from app.schemas import ProjectSchema
 from app.utils import get_user
-from app.utils.responses import make_resp, NOT_IMPLEMENTED, NOT_FOUND, NO_JSON, FORBIDDEN, UNAUTHORIZED
+from app.utils.responses import make_resp, NOT_FOUND, NO_JSON, FORBIDDEN, UNAUTHORIZED
 
 projects_bp = Blueprint("projects", __name__)
 
@@ -35,6 +35,7 @@ def projects(user_id: int = None, username: str = None) -> Tuple[Any, int]:
         try:
             project = project_schema.load(request.get_json())
             project.user = get_user()
+            project.root_directory = Directory(name="root")
             project.last_modified = datetime.datetime.now()
         except ValidationError as errors:
             return errors.messages, 422

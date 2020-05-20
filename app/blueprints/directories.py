@@ -13,13 +13,37 @@ from app.utils.responses import make_resp, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, N
 
 directory_bp = Blueprint("directories", __name__)
 
-directory_schema = DirectorySchema(exclude=("parent_id",))
+directory_schema = DirectorySchema()
+in_directory_schema = DirectorySchema(exclude=("parent_id",))
 
+# @directory_bp.route('/project/<int:project_id>/directories/', methods=["POST"])
+# @directory_bp.route('/project/<string:project_name>/directories/', methods=["POST"])
+# @jwt_optional
+# def create_project_directory(project_id: int = None, project_name: str = None) -> Tuple[Any, int]:
+#     project = Project.query.get(project_id) if project_id else Project.query.filter(Project.name == project_name).first()
+#     if not project:
+#         return make_resp(NOT_FOUND)
+#     if not get_user():
+#         return make_resp(UNAUTHORIZED)
+#     if project.user != get_user():
+#         return make_resp(FORBIDDEN)
+#     if not request.is_json:
+#         return make_resp(NO_JSON)
+#     try:
+#         directory = directory_schema.load(request.get_json())
+#         project.last_modified = datetime.datetime.now()
+#     except ValidationError as errors:
+#         return errors.messages, 422
+#     db.session.add(directory)
+#     db.session.commit()
+#     return jsonify(data=directory_schema.dump(directory)), 200
 
+@directory_bp.route("/project/<int:project_id>/create-directory-in/", methods=["POST"])
+@directory_bp.route("/project/<string:project_name>/create-directory-in/", methods=["POST"])
 @directory_bp.route("/project/<int:project_id>/create-directory-in/<path:parent_dir_path>/", methods=["POST"])
 @directory_bp.route("/project/<string:project_name>/create-directory-in/<path:parent_dir_path>/", methods=["POST"])
 @jwt_optional
-def create_directory(project_id: int = None, project_name: str = None, parent_dir_path: str = None) -> Tuple[Any, int]:
+def create_directory_with_path(project_id: int = None, project_name: str = None, parent_dir_path: str = "") -> Tuple[Any, int]:
     project = Project.query.get(project_id) if project_id else Project.query.filter(
         Project.name == project_name).first()
     if not get_user():
@@ -31,8 +55,10 @@ def create_directory(project_id: int = None, project_name: str = None, parent_di
     if not request.is_json:
         return make_resp(NO_JSON)
     parent_dir = get_sub_directory_from_path(project.root_directory, parent_dir_path)
+    if not parent_dir:
+        return make_resp(NOT_FOUND)
     try:
-        directory = directory_schema.load(request.get_json())
+        directory = in_directory_schema.load(request.get_json())
         directory.parent = parent_dir
         project.last_modified = datetime.datetime.now()
     except ValidationError as errors:
