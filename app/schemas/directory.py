@@ -2,7 +2,7 @@ from marshmallow import fields
 from marshmallow.validate import Length
 
 from app import marshmallow
-from app.models import BlockFile, Directory
+from app.models import Directory
 from app.utils import exists
 
 

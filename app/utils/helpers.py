@@ -1,5 +1,5 @@
 from typing import Union, Callable
-from app.models import User
+from app.models import User, Directory
 from flask_jwt_extended import get_current_user
 from marshmallow import ValidationError
 
@@ -21,3 +21,19 @@ def exists(table, name: str) -> Callable:
             raise ValidationError("There is no " + name + " with ID " + str(value) + ".")
 
     return _exists
+
+
+def get_sub_directory_from_path(dir: Directory, path: str) -> Union[Directory, None]:
+    path = path.split("/")
+    for seg in path:
+        if len(seg) == 0:  # If has trailing slash, incl. navigating to root directory.
+            break
+        valid = False
+        for sd in dir.sub_directories:
+            if sd.name == seg:
+                dir = sd
+                valid = True
+                break
+        if not valid:
+            return None
+    return dir
