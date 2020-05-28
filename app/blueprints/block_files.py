@@ -75,7 +75,7 @@ def create_block_file(project_id: int = None, project_name: str = None, file_pat
 
 @block_files_bp.route("/block-file/<int:id>/", methods=["GET", "PUT", "DELETE"])
 @jwt_optional
-def block_file(id: int):
+def block_file(id: int) -> Tuple[Any, int]:
     block_file = BlockFile.query.get(id)
     if not block_file:
         return make_resp(NOT_FOUND)

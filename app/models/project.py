@@ -5,7 +5,7 @@ class Project(db.Model):
     __tablename__ = "projects"
     
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(60))
+    name = db.Column(db.String(60), index=True, unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     last_modified = db.Column(db.DateTime)
     root_directory_id = db.Column(db.Integer, db.ForeignKey("directories.id"))

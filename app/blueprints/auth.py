@@ -1,3 +1,5 @@
+from typing import Tuple, Any
+
 import bcrypt
 from flask import Blueprint, jsonify
 from flask_jwt_extended import get_current_user, create_access_token
@@ -13,11 +15,11 @@ user_schema = UserSchema(exclude=("projects",))
 
 
 @auth_bp.route("/auth/", methods=["POST"])
-@use_args({"username": String(required=True), "password": String(required=True)}, locations=("json",))
-def login(args):
+@use_args({"email": String(required=True), "password": String(required=True)}, locations=("json",))
+def login(args) -> Tuple[Any, int]:
     if get_current_user():
         return jsonify(msg="Already authenticated (you already have a token!)."), 400
-    user = User.query.filter_by(username=args.get("username")).first()
+    user = User.query.filter_by(email=args.get("email")).first()
     if user and bcrypt.checkpw(args.get("password").encode(), user.hashed_password.encode()):
         access_token = create_access_token(identity=user)
         return jsonify(access_token=access_token,

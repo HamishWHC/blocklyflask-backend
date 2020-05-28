@@ -7,7 +7,7 @@ class Directory(db.Model):
     __tablename__ = "directories"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255))
+    name = db.Column(db.String(255), index=True)
     parent_id = db.Column(db.Integer, db.ForeignKey("directories.id"))
 
     parent = db.relationship("Directory", backref=db.backref("sub_directories", cascade="all, delete-orphan"),

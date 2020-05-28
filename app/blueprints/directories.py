@@ -70,7 +70,7 @@ def create_directory_with_path(project_id: int = None, project_name: str = None,
 
 @directory_bp.route("/directory/<int:id>/", methods=["GET", "PUT", "DELETE"])
 @jwt_optional
-def directory(id: int):
+def directory(id: int) -> Tuple[Any, int]:
     directory = Directory.query.get(id)
     if not directory:
         return make_resp(NOT_FOUND)

@@ -47,7 +47,7 @@ def projects(user_id: int = None, username: str = None) -> Tuple[Any, int]:
 @projects_bp.route("/project/<int:id>/", methods=["GET", "PUT", "DELETE"])
 @projects_bp.route("/project/<string:name>/", methods=["GET", "PUT", "DELETE"])
 @jwt_optional
-def project(id: int = None, name: str = None):
+def project(id: int = None, name: str = None) -> Tuple[Any, int]:
     project = Project.query.get(id) if id else Project.query.filter(Project.name == name).first()
     if not project:
         return make_resp(NOT_FOUND)
