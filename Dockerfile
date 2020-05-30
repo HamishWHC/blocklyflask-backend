@@ -8,7 +8,7 @@ WORKDIR /app
 
 ADD . /app
 
-RUN apk update && apk add gcc python3-dev python3-psycopg2
+RUN apt-get update && apt-get install gcc python3-dev python3-psycopg2
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 EXPOSE 80
