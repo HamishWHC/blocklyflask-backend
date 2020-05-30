@@ -11,12 +11,12 @@ class BaseConfig():
     # Displays stack traces in HTML page, can allow for code execution and is a security risk to enable.
     FLASK_DEBUG = True
     # Secret key for session encryption.
-    SECRET_KEY = private_ini["dev"]["session_secret"]
+    SECRET_KEY = os.environ.get("SESSION_SECRET", None)
     # Secret key for JWT Tokens.
-    JWT_SECRET_KEY = private_ini["dev"]["jwt_secret"]
+    JWT_SECRET_KEY = os.environ.get("JWT_SECRET", None)
 
     # URI for database.
-    SQLALCHEMY_DATABASE_URI = private_ini["dev"]["sqlalchemy_db_uri"]
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DB_CONNECTION_STRING", None)
 
     # Tracks modifications and emits signals. Disabled to reduce memory usage.
     SQLALCHEMY_TRACK_MODIFICATIONS = False
