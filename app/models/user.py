@@ -12,4 +12,4 @@ class User(db.Model):
 
     @property
     def gravatar_link(self):
-        return "https://www.gravatar.com/avatar/{}.png?f=y&d=identicon".format(hashlib.md5((self.email + "blah").encode()))
+        return "https://www.gravatar.com/avatar/{}.png?f=y&d=identicon".format(hashlib.md5((self.email + "blah").encode()).hexdigest())
