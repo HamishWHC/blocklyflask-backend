@@ -1,5 +1,5 @@
 import bcrypt
-from marshmallow import fields, validate, post_load, validates_schema, ValidationError
+from marshmallow import fields, validate, post_load, validates_schema, ValidationError, pre_load
 
 from app import marshmallow
 from app.models import User
@@ -31,8 +31,8 @@ class UserSchema(marshmallow.ModelSchema):
             raise ValidationError("Email already in use.", "email")
 
     @post_load(pass_original=True)
-    def post_process(self, data, original_data, **kwargs):
-        data["hashed_password"] = bcrypt.hashpw(original_data["password"].encode(), bcrypt.gensalt()).decode()
-        data["email"] = original_data["email"].lower()
-        data["username"] = original_data["username"].lower()
-        return data
+    def post_process(self, obj, original_data, **kwargs):
+        obj.hashed_password = bcrypt.hashpw(original_data["password"].encode(), bcrypt.gensalt()).decode()
+        obj.email = original_data["email"].lower()
+        obj.username = original_data["username"].lower()
+        return obj
