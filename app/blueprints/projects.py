@@ -23,7 +23,7 @@ project_schema = ProjectSchema()
 @projects_bp.route('/user/<string:username>/projects/', methods=["GET"])
 @jwt_optional
 def projects(user_id: int = None, username: str = None) -> Tuple[Any, int]:
-    user = get_user(user_id if user_id else username if username else None)
+    user = get_user(user_id if user_id else username.lower() if username else None)
     if not user:
         return make_resp(NOT_FOUND)
     if request.method == "GET":
@@ -50,7 +50,7 @@ def projects(user_id: int = None, username: str = None) -> Tuple[Any, int]:
 @projects_bp.route("/project/<string:name>/", methods=["GET", "PUT", "DELETE"])
 @jwt_optional
 def project(id: int = None, name: str = None) -> Tuple[Any, int]:
-    project = Project.query.get(id) if id else Project.query.filter(Project.name == name).first()
+    project = Project.query.get(id) if id else Project.query.filter(Project.name == name.lower()).first()
     if not project:
         return make_resp(NOT_FOUND)
     if request.method == "GET":
@@ -82,6 +82,6 @@ def project(id: int = None, name: str = None) -> Tuple[Any, int]:
 def project_name_check(args) -> Tuple[Any, int]:
     return jsonify(
         taken=Project.query.filter(
-            Project.name == args.get("name", None),
+            Project.name == args.get("name", "").lower(),
             Project.id != args.get("project_id", 0)
         ).first() is not None), 200

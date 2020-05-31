@@ -39,7 +39,7 @@ def users_post() -> Tuple[Any, int]:
 @users_bp.route("/user/<string:username>/", methods=["GET"])
 @jwt_optional
 def user(id: int = None, username: str = None) -> Tuple[Any, int]:
-    user = get_user(id if id else username if username else None)
+    user = get_user(id if id else username.lower() if username else None)
     if not user:
         return make_resp(NOT_FOUND)
     if request.method == "GET":
@@ -70,7 +70,7 @@ def user(id: int = None, username: str = None) -> Tuple[Any, int]:
 def username_check(args) -> Tuple[Any, int]:
     return jsonify(
         taken=User.query.filter(
-            User.username == args.get("username", None),
+            User.username == args.get("username", "").lower(),
             User.id != args.get("user_id", 0)
         ).first() is not None), 200
 
@@ -80,7 +80,7 @@ def username_check(args) -> Tuple[Any, int]:
 def email_check(args) -> Tuple[Any, int]:
     return jsonify(
         taken=User.query.filter(
-            User.email == args.get("email", None),
+            User.email == args.get("email", "").lower(),
             User.id != args.get("user_id", 0)
         ).first() is not None
     ), 200

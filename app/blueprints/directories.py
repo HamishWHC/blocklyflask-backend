@@ -45,7 +45,7 @@ in_directory_schema = DirectorySchema(exclude=("parent_id",))
 @jwt_optional
 def create_directory_with_path(project_id: int = None, project_name: str = None, parent_dir_path: str = "") -> Tuple[Any, int]:
     project = Project.query.get(project_id) if project_id else Project.query.filter(
-        Project.name == project_name).first()
+        Project.name == project_name.lower()).first()
     if not get_user():
         return make_resp(UNAUTHORIZED)
     if not project:

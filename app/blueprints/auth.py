@@ -19,7 +19,7 @@ user_schema = UserSchema(exclude=("projects",))
 def login(args) -> Tuple[Any, int]:
     if get_current_user():
         return jsonify(msg="Already authenticated (you already have a token!)."), 400
-    user = User.query.filter_by(email=args.get("email")).first()
+    user = User.query.filter_by(email=args.get("email", "").lower()).first()
     if user and bcrypt.checkpw(args.get("password").encode(), user.hashed_password.encode()):
         access_token = create_access_token(identity=user)
         return jsonify(access_token=access_token,

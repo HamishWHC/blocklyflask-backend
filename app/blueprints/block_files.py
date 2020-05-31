@@ -50,7 +50,7 @@ in_block_file_schema = BlockFileSchema(exclude=("directory_id",))
 @jwt_optional
 def create_block_file(project_id: int = None, project_name: str = None, file_path: str = "") -> Tuple[Any, int]:
     project = Project.query.get(project_id) if project_id else Project.query.filter(
-        Project.name == project_name).first()
+        Project.name == project_name.lower()).first()
     if not get_user():
         return make_resp(UNAUTHORIZED)
     if not project:

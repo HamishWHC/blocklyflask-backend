@@ -19,7 +19,7 @@ directory_schema = DirectorySchema()
 @browse_bp.route("/project/<string:project_name>/browse/<path:file_path>/", methods=["GET"])
 @jwt_optional
 def get_dir_contents(project_id: int = None, project_name: str = None, file_path: str = "") -> Tuple[Any, int]:
-    project = Project.query.get(project_id) if project_id else Project.query.filter(Project.name == project_name).first()
+    project = Project.query.get(project_id) if project_id else Project.query.filter(Project.name == project_name.lower()).first()
     if not project:
         return make_resp(NOT_FOUND)
     dir = get_sub_directory_from_path(project.root_directory, file_path)

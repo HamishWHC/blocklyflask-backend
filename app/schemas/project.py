@@ -1,4 +1,4 @@
-from marshmallow import fields, validate, ValidationError, validates_schema
+from marshmallow import fields, validate, ValidationError, validates_schema, post_load
 
 from app import marshmallow
 from app.models import Project
@@ -22,3 +22,8 @@ class ProjectSchema(marshmallow.ModelSchema):
                 Project.id != self.context.get("project_id", 0)
         ).first() is not None:
             raise ValidationError("Name already in use.", "name")
+
+    @post_load(pass_original=True)
+    def post_process(self, data, original_data, **kwargs):
+        data["name"] = original_data["name"].lower()
+        return data
