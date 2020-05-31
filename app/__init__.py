@@ -40,5 +40,6 @@ def create_app(config: Type[BaseConfig] = BaseConfig) -> Flask:
     app.register_error_handler(401, UTILS.handle_401)
     app.register_error_handler(400, UTILS.handle_400)
     app.register_error_handler(500, UTILS.handle_500)
+    app.register_error_handler(405, UTILS.handle_405)
 
     return app

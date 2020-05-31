@@ -23,3 +23,7 @@ def handle_500(*args) -> Tuple[Any, int]:
     return jsonify({
         "msg": "An internal server error occurred! Please raise an issue at https://github.com/HamishWHC/blocklyflask-backend/"
     }), 500
+
+
+def handle_405(*args) -> Tuple[Any, int]:
+    return jsonify({"msg": "That method is not allowed on the requested resource."}), 405

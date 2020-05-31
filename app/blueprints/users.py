@@ -50,7 +50,9 @@ def user(id: int = None, username: str = None) -> Tuple[Any, int]:
         if not request.is_json:
             return make_resp(NO_JSON)
         try:
+            user_schema.context["user_id"] = user.id
             user = user_schema.load(request.get_json(), instance=user)
+            user_schema.context.pop("user_id")
         except ValidationError as errors:
             return errors.messages, 422
         db.session.commit()

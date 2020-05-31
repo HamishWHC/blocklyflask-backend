@@ -4,6 +4,8 @@ from typing import Tuple, Any
 from flask import jsonify, request, Blueprint
 from flask_jwt_extended import jwt_optional
 from marshmallow import ValidationError
+from webargs.flaskparser import use_args
+from webargs.fields import Integer, String
 
 from app import db
 from app.models import Project, Directory
@@ -59,8 +61,10 @@ def project(id: int = None, name: str = None) -> Tuple[Any, int]:
         if not request.is_json:
             return make_resp(NO_JSON)
         try:
+            project_schema.context["project_id"] = project.id
             project = project_schema.load(request.get_json(), instance=project)
             project.last_modified = datetime.datetime.now()
+            project_schema.context.pop("project_id")
         except ValidationError as errors:
             return errors.messages, 422
         db.session.commit()
@@ -71,3 +75,13 @@ def project(id: int = None, name: str = None) -> Tuple[Any, int]:
         db.session.delete(project)
         db.session.commit()
         return make_resp(({"msg": "success"}, 200))
+
+
+@projects_bp.route("/uniquity-check/project-name/", methods=["GET"])
+@use_args({"name": String(required=True), "project_id": Integer(required=False)}, locations=("querystring",))
+def project_name_check(args) -> Tuple[Any, int]:
+    return jsonify(
+        taken=Project.query.filter(
+            Project.name == args.get("name", None),
+            Project.id != args.get("project_id", 0)
+        ).first() is not None), 200
