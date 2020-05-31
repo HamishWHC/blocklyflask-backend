@@ -38,7 +38,7 @@ def projects(user_id: int = None, username: str = None) -> Tuple[Any, int]:
             project = project_schema.load(request.get_json())
             project.user = get_user()
             project.root_directory = Directory(name="root")
-            project.last_modified = datetime.datetime.now()
+            project.last_modified = datetime.datetime.utcnow()
         except ValidationError as errors:
             return errors.messages, 422
         db.session.add(project)
@@ -63,7 +63,7 @@ def project(id: int = None, name: str = None) -> Tuple[Any, int]:
         try:
             project_schema.context["project_id"] = project.id
             project = project_schema.load(request.get_json(), instance=project)
-            project.last_modified = datetime.datetime.now()
+            project.last_modified = datetime.datetime.utcnow()
             project_schema.context.pop("project_id")
         except ValidationError as errors:
             return errors.messages, 422

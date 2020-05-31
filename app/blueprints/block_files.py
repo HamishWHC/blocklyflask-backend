@@ -35,7 +35,7 @@ in_block_file_schema = BlockFileSchema(exclude=("directory_id",))
 #             return make_resp(NO_JSON)
 #         try:
 #             block_file = block_file_schema.load(request.get_json())
-#             block_file.project.last_modified = datetime.datetime.now()
+#             block_file.project.last_modified = datetime.datetime.utcnow()
 #         except ValidationError as errors:
 #             return errors.messages, 422
 #         db.session.add(block_file)
@@ -65,7 +65,7 @@ def create_block_file(project_id: int = None, project_name: str = None, file_pat
     try:
         block_file = in_block_file_schema.load(request.get_json())
         block_file.directory = dir
-        project.last_modified = datetime.datetime.now()
+        project.last_modified = datetime.datetime.utcnow()
     except ValidationError as errors:
         return errors.messages, 422
     db.session.add(block_file)
@@ -88,7 +88,7 @@ def block_file(id: int) -> Tuple[Any, int]:
             return make_resp(NO_JSON)
         try:
             block_file = block_file_schema.load(request.get_json(), instance=block_file, partial=True)
-            block_file.project.last_modified = datetime.datetime.now()
+            block_file.project.last_modified = datetime.datetime.utcnow()
         except ValidationError as errors:
             return errors.messages, 422
         db.session.commit()

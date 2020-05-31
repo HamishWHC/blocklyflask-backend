@@ -24,6 +24,6 @@ class ProjectSchema(marshmallow.ModelSchema):
             raise ValidationError("Name already in use.", "name")
 
     @post_load(pass_original=True)
-    def post_process(self, data, original_data, **kwargs):
-        data["name"] = original_data["name"].lower()
-        return data
+    def post_process(self, obj, original_data, **kwargs):
+        obj.name = original_data["name"].lower()
+        return obj

@@ -60,7 +60,7 @@ def create_directory_with_path(project_id: int = None, project_name: str = None,
     try:
         directory = in_directory_schema.load(request.get_json())
         directory.parent = parent_dir
-        project.last_modified = datetime.datetime.now()
+        project.last_modified = datetime.datetime.utcnow()
     except ValidationError as errors:
         return errors.messages, 422
     db.session.add(directory)
@@ -83,7 +83,7 @@ def directory(id: int) -> Tuple[Any, int]:
             return make_resp(NO_JSON)
         try:
             directory = directory_schema.load(request.get_json(), instance=directory, partial=True)
-            directory.project.last_modified = datetime.datetime.now()
+            directory.project.last_modified = datetime.datetime.utcnow()
         except ValidationError as errors:
             return errors.messages, 422
         db.session.commit()
