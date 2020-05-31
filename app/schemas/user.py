@@ -8,7 +8,7 @@ from app.models import User
 class UserSchema(marshmallow.ModelSchema):
     class Meta:
         model = User
-        fields = ("id", "email", "projects", "username", "password")
+        fields = ("id", "email", "projects", "username", "password", "gravatar_link")
 
     id = fields.Integer(dump_only=True)
     email = fields.String(required=True, validate=validate.Regexp(r"^[^@]+@[^@]+\.[^@]+$"))
@@ -16,6 +16,7 @@ class UserSchema(marshmallow.ModelSchema):
                              validate=[validate.Regexp(r"^[a-zA-Z_\-0-9]{6,20}$"), validate.Length(min=6, max=20)])
     password = fields.String(required=True, validate=[validate.Length(min=8)], load_only=True)
     projects = fields.Nested("ProjectSchema", exclude=("user", "root_directory"), many=True, dump_only=True)
+    gravatar_link = fields.String(dump_only=True)
 
     @validates_schema
     def uniquity_checks(self, data, **kwargs) -> None:
