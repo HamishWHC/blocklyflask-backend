@@ -8,7 +8,7 @@ from webargs.flaskparser import use_args
 from webargs.fields import Integer, String
 
 from app import db
-from app.models import Project, Directory
+from app.models import Project, Directory, BlockFile
 from app.schemas import ProjectSchema
 from app.utils import get_user
 from app.utils.responses import make_resp, NOT_FOUND, NO_JSON, FORBIDDEN, UNAUTHORIZED
@@ -38,6 +38,7 @@ def projects(user_id: int = None, username: str = None) -> Tuple[Any, int]:
             project = project_schema.load(request.get_json())
             project.user = get_user()
             project.root_directory = Directory(name="root")
+            project.root_directory.block_files = [BlockFile(name="app.py", block_xml="")]
             project.last_modified = datetime.datetime.utcnow()
         except ValidationError as errors:
             return errors.messages, 422

@@ -31,7 +31,7 @@ class Directory(db.Model):
         if self.parent:
             return self.parent.project
         else:
-            return self._project
+            return self._project[0]
 
     @property
     def all_block_files(self) -> List[BlockFile]:
